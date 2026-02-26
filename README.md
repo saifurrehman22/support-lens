@@ -16,8 +16,8 @@ backend/    FastAPI + SQLite + Groq / Llama 3.1 (port 8000)
 **Prerequisites:** Docker + Docker Compose, a Groq API key (free at console.groq.com).
 
 ```bash
-git clone <repo-url>
-cd supportlens
+git clone https://github.com/saifurrehman22/support-lens.git
+cd support-lens
 
 # 1. Create .env and add your key
 echo "GROQ_API_KEY=your_key_here" > .env
@@ -45,10 +45,14 @@ python -m venv .venv
 source .venv/bin/activate      # Windows: .venv\Scripts\activate
 
 pip install -r requirements.txt
+```
 
-# Set your API key
-export GROQ_API_KEY=your_key_here   # Windows: set GROQ_API_KEY=...
+Create a `.env` file in the project root:
+```
+GROQ_API_KEY=your_key_here
+```
 
+```bash
 uvicorn main:app --reload --port 8000
 ```
 
