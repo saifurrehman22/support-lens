@@ -3,6 +3,9 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Optional
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func
