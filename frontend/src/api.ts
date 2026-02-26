@@ -52,11 +52,12 @@ export async function postTrace(
   return res.json();
 }
 
-export async function getTraces(category?: string): Promise<Trace[]> {
-  const url = category
-    ? `${BASE}/traces?category=${encodeURIComponent(category)}`
-    : `${BASE}/traces`;
-  const res = await fetch(url);
+export async function getTraces(category?: string, q?: string): Promise<Trace[]> {
+  const params = new URLSearchParams();
+  if (category) params.set("category", category);
+  if (q) params.set("q", q);
+  const query = params.toString() ? `?${params}` : "";
+  const res = await fetch(`${BASE}/traces${query}`);
   if (!res.ok) throw new Error(`Fetch traces failed: ${res.statusText}`);
   return res.json();
 }

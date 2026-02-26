@@ -73,9 +73,10 @@ def create_trace(trace: schemas.TraceCreate, db: Session = Depends(get_db)):
 @app.get("/traces", response_model=list[schemas.TraceResponse])
 def get_traces(
     category: Optional[str] = Query(None, description="Filter by category name"),
+    q: Optional[str] = Query(None, description="Full-text search across user_message and bot_response"),
     db: Session = Depends(get_db),
 ):
-    """Return all traces, most recent first. Optionally filter by category."""
+    """Return all traces, most recent first. Optionally filter by category and/or search text."""
     query = db.query(Trace).order_by(Trace.timestamp.desc())
     if category:
         try:
@@ -83,6 +84,11 @@ def get_traces(
         except ValueError:
             raise HTTPException(status_code=400, detail=f"Invalid category: {category}")
         query = query.filter(Trace.category == cat_enum)
+    if q:
+        term = f"%{q}%"
+        query = query.filter(
+            Trace.user_message.ilike(term) | Trace.bot_response.ilike(term)
+        )
     return query.all()
 
 
