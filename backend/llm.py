@@ -1,8 +1,11 @@
+import os
 import time
 
-import anthropic
+from groq import Groq
 
-client = anthropic.Anthropic()
+client = Groq(api_key=os.environ.get("GROQ_API_KEY", ""))
+
+MODEL = "llama-3.1-8b-instant"
 
 CHATBOT_SYSTEM_PROMPT = """You are a helpful customer support agent for BillPro, a SaaS billing platform used by thousands of businesses.
 
@@ -45,26 +48,28 @@ Respond with ONLY the category name. No explanation, no punctuation — just the
 
 def chat(user_message: str) -> tuple[str, int]:
     start = time.time()
-    response = client.messages.create(
-        model="claude-haiku-4-5-20251001",
+    response = client.chat.completions.create(
+        model=MODEL,
         max_tokens=512,
-        system=CHATBOT_SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_message}],
+        messages=[
+            {"role": "system", "content": CHATBOT_SYSTEM_PROMPT},
+            {"role": "user", "content": user_message},
+        ],
     )
     elapsed_ms = int((time.time() - start) * 1000)
-    return response.content[0].text, elapsed_ms
+    return response.choices[0].message.content, elapsed_ms
 
 
 def classify(user_message: str, bot_response: str) -> str:
     prompt = CLASSIFICATION_PROMPT.format(
         user_message=user_message, bot_response=bot_response
     )
-    response = client.messages.create(
-        model="claude-haiku-4-5-20251001",
+    response = client.chat.completions.create(
+        model=MODEL,
         max_tokens=10,
         messages=[{"role": "user", "content": prompt}],
     )
-    raw = response.content[0].text.strip()
+    raw = response.choices[0].message.content.strip()
 
     valid = ["Billing", "Refund", "Account Access", "Cancellation", "General Inquiry"]
     for cat in valid:
